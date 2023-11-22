@@ -1,0 +1,7 @@
+---
+name: get-semantic-version
+description: Get semantic version based on branch name and commits
+
+runs:
+  using: docker
+  image: Dockerfile

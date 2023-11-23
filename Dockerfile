@@ -5,5 +5,5 @@ WORKDIR /action
 COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 COPY src ./src
-USER 1001
+USER 1000
 ENTRYPOINT [ "python", "/action/src/app.py" ]

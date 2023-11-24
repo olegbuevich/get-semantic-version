@@ -5,3 +5,8 @@ description: Get semantic version based on branch name and commits
 runs:
   using: docker
   image: Dockerfile
+outputs:
+  new_release:
+    description: 'Whether a new tag/release was created'
+  new_release_version:
+    description: 'Version of the new tag/release'

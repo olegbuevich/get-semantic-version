@@ -61,7 +61,7 @@ def create_gh_release(tag_name: str):
         "tag_name": tag_name,
         "name": tag_name,
         "prerelease": True if len(tag_name.split("-")) > 1 else False,
-        "make_latest": False if len(tag_name.split("-")) > 1 else True
+        "make_latest": "false" if len(tag_name.split("-")) > 1 else "true"
     }
     with requests.post(github_api_endpoint, json=data, headers=headers) as r:
         if r.status_code == requests.codes.created:

@@ -100,7 +100,7 @@ def main():
         print(f"new tag: {version_string}")
         new_tag = repo.create_tag(version_string)
         repo.remotes.origin.push(new_tag)
-        create_gh_release(new_tag)
+        create_gh_release(version_string)
         add_github_output("new_release_version", version_string)
 
     add_github_output("new_release", "true" if create_new_release else "false")

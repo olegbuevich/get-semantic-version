@@ -3,6 +3,7 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 
+import requests
 from git import Commit, Repo, TagReference
 
 GIT_MESSAGE_PREFIX = [
@@ -47,6 +48,29 @@ def add_github_output(name, value):
         f.write(f"{name}={value}\n")
 
 
+def create_gh_release(tag_name: str):
+    github_token = os.environ["GITHUB_TOKEN"]
+    github_repository = os.environ["GITHUB_REPOSITORY"]
+    github_api_endpoint = f"https://api.github.com/repos/{github_repository}/releases"
+    headers = {
+        "Authorization": f"Bearer {github_token}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28"
+    }
+    data = {
+        "tag_name": tag_name,
+        "name": tag_name,
+        "prerelease": True if len(tag_name.split("-")) > 1 else False,
+        "make_latest": "false" if len(tag_name.split("-")) > 1 else "true"
+    }
+    with requests.post(github_api_endpoint, json=data, headers=headers) as r:
+        if r.status_code == requests.codes.created:
+            print("Release created")
+        else:
+            print(r.status_code)
+            print(r.text)
+
+
 def main():
     repo = Repo(os.environ["GITHUB_WORKSPACE"])
 
@@ -69,7 +93,7 @@ def main():
         if current_branch in ["master"]:
             version_string = pom_version
         else:
-            pre_release = re.sub(r"[^\w\s]", ".", current_branch)
+            pre_release = re.sub(r"[^\w\s]", ".", current_branch).lower()
             last_tag_build = last_tag.name.removeprefix(f"v{pom_version}-{pre_release}.")
             if last_tag_build.isnumeric():
                 build = int(last_tag_build) + 1
@@ -78,6 +102,9 @@ def main():
             version_string = f"v{pom_version}-{pre_release}.{build}"
 
         print(f"new tag: {version_string}")
+        new_tag = repo.create_tag(version_string)
+        repo.remotes.origin.push(new_tag)
+        create_gh_release(version_string)
         add_github_output("new_release_version", version_string)
 
     add_github_output("new_release", "true" if create_new_release else "false")

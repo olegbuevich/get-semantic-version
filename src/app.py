@@ -3,6 +3,7 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 
+import requests
 from git import Commit, Repo, TagReference
 
 GIT_MESSAGE_PREFIX = [
@@ -47,6 +48,23 @@ def add_github_output(name, value):
         f.write(f"{name}={value}\n")
 
 
+def create_gh_release(tag_name: str):
+    github_token = os.environ["GITHUB_TOKEN"]
+    github_repository = os.environ["GITHUB_REPOSITORY"]
+    github_api_endpoint = f"https://api.github.com/repos/{github_repository}/releases"
+    headers = {
+        "Authorization": f"Bearer {github_token}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28"
+    }
+    data = {
+        "tag_name": tag_name
+    }
+    with requests.post(github_api_endpoint, data=data, headers=headers) as r:
+        if r.status_code == requests.codes.ok:
+            print("Release created")
+
+
 def main():
     repo = Repo(os.environ["GITHUB_WORKSPACE"])
 
@@ -78,6 +96,10 @@ def main():
             version_string = f"v{pom_version}-{pre_release}.{build}"
 
         print(f"new tag: {version_string}")
+        new_tag = repo.create_tag(version_string)
+        repo.remotes.origin.push(new_tag)
+        if current_branch in ["master"]:
+            create_gh_release(new_tag)
         add_github_output("new_release_version", version_string)
 
     add_github_output("new_release", "true" if create_new_release else "false")

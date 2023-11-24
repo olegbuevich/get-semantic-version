@@ -58,7 +58,9 @@ def create_gh_release(tag_name: str):
         "X-GitHub-Api-Version": "2022-11-28"
     }
     data = {
-        "tag_name": tag_name
+        "tag_name": tag_name,
+        "prerelease": True if len(tag_name.split("-")) > 1 else False,
+        "make_latest": False if len(tag_name.split("-")) > 1 else True,
     }
     with requests.post(github_api_endpoint, data=data, headers=headers) as r:
         if r.status_code == requests.codes.ok:
@@ -87,7 +89,7 @@ def main():
         if current_branch in ["master"]:
             version_string = pom_version
         else:
-            pre_release = re.sub(r"[^\w\s]", ".", current_branch)
+            pre_release = re.sub(r"[^\w\s]", ".", current_branch).lower()
             last_tag_build = last_tag.name.removeprefix(f"v{pom_version}-{pre_release}.")
             if last_tag_build.isnumeric():
                 build = int(last_tag_build) + 1
@@ -98,8 +100,7 @@ def main():
         print(f"new tag: {version_string}")
         new_tag = repo.create_tag(version_string)
         repo.remotes.origin.push(new_tag)
-        if current_branch in ["master"]:
-            create_gh_release(new_tag)
+        create_gh_release(new_tag)
         add_github_output("new_release_version", version_string)
 
     add_github_output("new_release", "true" if create_new_release else "false")

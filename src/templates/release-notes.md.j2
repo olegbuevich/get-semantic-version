@@ -1,0 +1,17 @@
+# {{ version }}
+
+## Features
+{% for item in version_feature %}
+* **{{ item.issue }}:** {{ item.comment }}
+{%- endfor %}
+
+## Bug fixes
+{% for item in version_fix %}
+* **{{ item.issue }}:** {{ item.comment }}
+{%- endfor %}
+
+## Other
+
+{% for item in version_other -%}
+* {{ item }}
+{% endfor %}

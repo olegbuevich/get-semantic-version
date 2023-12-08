@@ -149,7 +149,7 @@ def main():
         last_tag_commit = last_tag.commit
     else:
         last_tag_commit = None
-        last_tag["name"] = "none"
+        last_tag = {"name": "none"}
     print(f"current tag: {last_tag.name}")
 
     # check if empty

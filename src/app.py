@@ -145,7 +145,11 @@ def main():
 
     current_branch = repo.active_branch.name
     last_tag = get_last_tag(repo, current_branch)
-    last_tag_commit = last_tag.commit if last_tag else None
+    if last_tag:
+        last_tag_commit = last_tag.commit
+    else:
+        last_tag_commit = None
+        last_tag["name"] = "none"
     print(f"current tag: {last_tag.name}")
 
     # check if empty

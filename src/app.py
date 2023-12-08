@@ -26,7 +26,15 @@ GIT_MESSAGE_PREFIX = [
 
 def get_last_tag(repo: Repo, branch_name: str) -> TagReference:
     # Get the last tag in the given branch
-    tags = [repo.tag(tag) for tag in repo.git.tag("--merged", branch_name).split("\n")]
+
+    if branch_name  == "master":
+        tags = [repo.tag(tag) for tag in repo.git.tag("--merged", branch_name).split("\n")]
+    else:
+        filter = re.sub(r"[^\w\s]", ".", branch_name).lower()
+        tags = [
+            repo.tag(tag) for tag in repo.git.tag("--merged", branch_name).split("\n") if filter in tag
+        ]
+
     last_tag = max(tags, key=lambda tag: tag.commit.committed_date) if tags else None
     return last_tag
 

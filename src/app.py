@@ -145,12 +145,8 @@ def main():
 
     current_branch = repo.active_branch.name
     last_tag = get_last_tag(repo, current_branch)
-    if last_tag:
-        last_tag_commit = last_tag.commit
-    else:
-        last_tag_commit = None
-        last_tag = {"name": "none"}
-    print(f"current tag: {last_tag.name}")
+    print(f"current tag: {last_tag.name if last_tag else 'None'}")
+    last_tag_commit = last_tag.commit if last_tag else None
 
     # check if empty
     commits = get_commits_between(repo, last_tag_commit, repo.active_branch.commit)
@@ -171,7 +167,7 @@ def main():
             version_string = version_number
         else:
             pre_release = re.sub(r"[^\w\s]", ".", current_branch).lower()
-            last_tag_build = last_tag.name.removeprefix(f"v{version_number}-{pre_release}.")
+            last_tag_build = last_tag.name.removeprefix(f"v{version_number}-{pre_release}.") if last_tag else ""
             if last_tag_build.isnumeric():
                 build_number = int(last_tag_build) + 1
             else:

@@ -40,6 +40,8 @@ def get_last_tag(repo: Repo, branch_name: str) -> TagReference:
 
 
 def get_commits_between(repo: Repo, start_commit: Commit, end_commit: Commit) -> list[Commit]:
+    if not start_commit:
+        start_commit = end_commit
     commits = list(repo.iter_commits(rev=f"{start_commit}..{end_commit}"))
     if commits:
         print("Commits:")

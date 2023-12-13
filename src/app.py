@@ -167,7 +167,7 @@ def main():
             version_number = package_json["version"]
 
         if current_branch in ["master"]:
-            version_string = version_number
+            version_string = f"v{version_number}"
         else:
             pre_release = re.sub(r"[^\w\s]", ".", current_branch).lower()
             last_tag_build = last_tag.name.removeprefix(f"v{version_number}-{pre_release}.") if last_tag else ""

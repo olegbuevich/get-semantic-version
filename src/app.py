@@ -30,7 +30,7 @@ def get_last_tag(repo: Repo, branch_name: str) -> TagReference:
     if branch_name  == "master":
         tags = [repo.tag(tag) for tag in repo.git.tag("--merged", branch_name).split("\n")]
     else:
-        filter = re.sub(r"[^\w\s]", ".", branch_name).lower()
+        filter = re.sub(r"[\W\s_]", ".", branch_name).lower()
         tags = [
             repo.tag(tag) for tag in repo.git.tag("--merged", branch_name).split("\n") if filter in tag
         ]
